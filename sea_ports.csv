@@ -1,0 +1,98 @@
+name,country,country_code,port_code,latitude,longitude
+Rotterdam,Netherlands,NL,RTM,51.9556,4.1339
+Shanghai,China,CN,SHG,31.2304,121.4737
+Mumbai,India,IN,BOM,18.9633,72.8436
+Karachi,Pakistan,PK,KHI,24.8607,67.0011
+Port Louis,Mauritius,MU,PLU,-20.1609,57.5012
+Bridgetown,Barbados,BB,BGI,13.0966,-59.6145
+Dubai,UAE,AE,DXB,25.2048,55.2708
+Singapore,Singapore,SG,SIN,1.3521,103.8198
+Colombo,Sri Lanka,LK,CMB,6.9271,79.8612
+Chittagong,Bangladesh,BD,CGP,22.3569,91.7832
+Yangon,Myanmar,MM,RGN,16.8409,96.1735
+Ho Chi Minh City,Vietnam,VN,SGN,10.8231,106.6297
+Manila,Philippines,PH,MNL,14.5995,120.9842
+Jakarta,Indonesia,ID,JKT,-6.2088,106.8456
+Kuala Lumpur,Malaysia,MY,KUL,3.1390,101.6869
+Bangkok,Thailand,TH,BKK,13.7563,100.5018
+Hong Kong,China,CN,HKG,22.3193,114.1694
+Tokyo,Japan,JP,TYO,35.6762,139.6503
+Busan,South Korea,KR,PUS,35.1796,129.0756
+Kaohsiung,Taiwan,TW,KHH,22.6273,120.3014
+Los Angeles,USA,US,LAX,33.9416,-118.4085
+New York,USA,US,NYC,40.7128,-74.0060
+Miami,USA,US,MIA,25.7617,-80.1918
+Houston,USA,US,HOU,29.7604,-95.3698
+Seattle,USA,US,SEA,47.6062,-122.3321
+London,UK,GB,LON,51.5074,-0.1278
+Liverpool,UK,GB,LPL,53.4084,-2.9916
+Southampton,UK,GB,SOU,50.9097,-1.4044
+Felixstowe,UK,GB,FXT,51.9617,1.3513
+Sydney,Australia,AU,SYD,-33.8688,151.2093
+Melbourne,Australia,AU,MEL,-37.8136,144.9631
+Brisbane,Australia,AU,BNE,-27.4698,153.0251
+Perth,Australia,AU,PER,-31.9505,115.8605
+Adelaide,Australia,AU,ADL,-34.9285,138.6007
+Abu Dhabi,UAE,AE,AUH,24.4539,54.3773
+Sharjah,UAE,AE,SHJ,25.3463,55.4209
+Fujairah,UAE,AE,FJR,25.1288,56.3265
+Jebel Ali,UAE,AE,JEA,25.0275,55.0751
+Hamburg,Germany,DE,HAM,53.5511,9.9937
+Antwerp,Belgium,BE,ANR,51.2194,4.4025
+Bremen,Germany,DE,BRE,53.0793,8.8017
+Le Havre,France,FR,LEH,49.4944,0.1079
+Marseille,France,FR,MRS,43.2965,5.3698
+Genoa,Italy,IT,GOA,44.4056,8.9463
+Naples,Italy,IT,NAP,40.8518,14.2681
+Barcelona,Spain,ES,BCN,41.3851,2.1734
+Valencia,Spain,ES,VLC,39.4699,-0.3763
+Lisbon,Portugal,PT,LIS,38.7223,-9.1393
+Porto,Portugal,PT,OPO,41.1579,-8.6291
+Durban,South Africa,ZA,DUR,-29.8587,31.0218
+Cape Town,South Africa,ZA,CPT,-33.9249,18.4241
+Port Elizabeth,South Africa,ZA,PLZ,-33.9608,25.6022
+Richards Bay,South Africa,ZA,RCB,-28.7807,32.0383
+Vancouver,Canada,CA,YVR,49.2827,-123.1207
+Montreal,Canada,CA,YUL,45.5017,-73.5673
+Halifax,Canada,CA,YHZ,44.6488,-63.5752
+Toronto,Canada,CA,YYZ,43.6532,-79.3832
+Auckland,New Zealand,NZ,AKL,-36.8485,174.7633
+Wellington,New Zealand,NZ,WLG,-41.2866,174.7756
+Christchurch,New Zealand,NZ,CHC,-43.5321,172.6362
+Tauranga,New Zealand,NZ,TRG,-37.6878,176.1651
+Osaka,Japan,JP,OSA,34.6937,135.5023
+Yokohama,Japan,JP,YOK,35.4437,139.6380
+Nagoya,Japan,JP,NGO,35.1815,136.9066
+Kobe,Japan,JP,UKB,34.6901,135.1955
+Mombasa,Kenya,KE,MBA,-4.0435,39.6682
+Dar es Salaam,Tanzania,TZ,DAR,-6.7924,39.2083
+Lagos,Nigeria,NG,LOS,6.5244,3.3792
+Tema,Ghana,GH,TEM,5.6666,-0.0167
+Abidjan,Ivory Coast,CI,ABJ,5.3599,-4.0083
+Dakar,Senegal,SN,DKR,14.7167,-17.4677
+Casablanca,Morocco,MA,CMN,33.5731,-7.5898
+Alexandria,Egypt,EG,ALY,31.2001,29.9187
+Port Said,Egypt,EG,PSD,31.2565,32.2841
+Suez,Egypt,EG,SUZ,29.9668,32.5498
+Istanbul,Turkey,TR,IST,41.0082,28.9784
+Izmir,Turkey,TR,IZM,38.4192,27.1287
+Mersin,Turkey,TR,MER,36.8000,34.6333
+Odessa,Ukraine,UA,ODS,46.4825,30.7233
+Mariupol,Ukraine,UA,MPW,47.0971,37.5434
+St. Petersburg,Russia,RU,LED,59.9343,30.3351
+Novorossiysk,Russia,RU,NVR,44.7235,37.7686
+Vladivostok,Russia,RU,VVO,43.1155,131.8855
+Buenos Aires,Argentina,AR,BUE,-34.6037,-58.3816
+Santos,Brazil,BR,SSZ,-23.9608,-46.3339
+Rio de Janeiro,Brazil,BR,RIO,-22.9068,-43.1729
+Callao,Peru,PE,CLL,-12.0464,-77.0428
+Valparaiso,Chile,CL,VAP,-33.0472,-71.6127
+Guayaquil,Ecuador,EC,GYE,-2.1894,-79.8891
+Cartagena,Colombia,CO,CTG,10.3910,-75.4794
+Panama City,Panama,PA,PTY,8.9824,-79.5199
+San Juan,Puerto Rico,PR,SJU,18.4663,-66.1057
+Kingston,Jamaica,JM,KIN,17.9714,-76.7922
+Havana,Cuba,CU,HAV,23.1136,-82.3666
+Veracruz,Mexico,MX,VER,19.1738,-96.1342
+Manzanillo,Mexico,MX,ZLO,19.0544,-104.3167
+Lazaro Cardenas,Mexico,MX,LZC,17.9568,-102.1944 

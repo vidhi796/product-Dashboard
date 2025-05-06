@@ -1,0 +1,13 @@
+<!-- export_dashboard/templates/export_dashboard/upload_excel.html -->
+<!DOCTYPE html>
+<html>
+<head><title>Upload Excel</title></head>
+<body>
+  <h2>Upload Export Data Excel</h2>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Upload</button>
+  </form>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chickpea Export Timeline</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
+  <script src="https://cdn.jsdelivr.net/npm/date-fns"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0"></script>
+
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #fff; }
+    h2 { text-align: center; color: orange; margin-bottom: 20px; }
+    .timeline-chart-container { max-width: 1000px; margin: auto; }
+    #timelineChart { width: 100%; height: 500px; }
+  </style>
+</head>
+<body>
+  <h2>Day-wise Rate & Quantity Timeline (Candlestick View)</h2>
+  <div class="timeline-chart-container">
+    <canvas id="timelineChart"></canvas>
+  </div>
+
+  <script>
+    fetch('{% url "export_data_json" %}')
+      .then(res => res.json())
+      .then(data => {
+        console.log("Fetched Data:", data);
+        if (data.length === 0) {
+          alert("No data available to display.");
+        } else {
+          const processedData = processTimelineData(data);
+          console.log("Processed Candlestick Data:", processedData);
+          renderTimelineChart(processedData);
+        }
+      })
+      .catch(err => {
+        console.error("Fetch error:", err);
+        alert("Failed to load data.");
+      });
+
+    function processTimelineData(data) {
+      const dailyStats = {};
+
+      data.forEach(item => {
+        if (!item.shipping_bill_date || !item.rate_per_unit || !item.quantity) return;
+
+        const date = new Date(item.shipping_bill_date).toISOString().split('T')[0];
+        if (!dailyStats[date]) {
+          dailyStats[date] = { rates: [], quantity: 0 };
+        }
+        dailyStats[date].rates.push(parseFloat(item.rate_per_unit));
+        dailyStats[date].quantity += parseFloat(item.quantity);
+      });
+
+      const chartData = Object.keys(dailyStats).sort().map(date => {
+        const rates = dailyStats[date].rates;
+        if (rates.length === 0) return null;
+
+        return {
+          x: new Date(date),
+          o: rates[0],
+          h: Math.max(...rates),
+          l: Math.min(...rates),
+          c: rates[rates.length - 1],
+          v: dailyStats[date].quantity
+        };
+      }).filter(item => item !== null);
+
+      return chartData;
+    }
+
+    function renderTimelineChart(data) {
+      const ctx = document.getElementById('timelineChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'candlestick',
+        data: {
+          datasets: [{
+            label: 'Rate per Unit (USD)',
+            data: data,
+            color: {
+              up: 'green',
+              down: 'red',
+              unchanged: 'gray'
+            },
+            borderColor: {
+              up: 'green',
+              down: 'red',
+              unchanged: 'gray'
+            },
+            borderWidth: 1,
+            barThickness: 8, // Thinner candlesticks for better separation
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                afterBody: (tooltipItems) => {
+                  const index = tooltipItems[0].dataIndex;
+                  return 'Volume: ' + data[index].v.toFixed(2) + ' MTS';
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              type: 'time',
+              time: {
+                unit: 'day',
+                tooltipFormat: 'MMM dd, yyyy',
+                displayFormats: {
+                  day: 'MMM dd'
+                }
+              },
+              title: { display: true, text: 'Date' },
+              ticks: { autoSkip: true, maxTicksLimit: 15 }
+            },
+            y: {
+              title: { display: true, text: 'Rate (USD)' }
+            }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>

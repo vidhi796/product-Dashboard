@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chickpea Export Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Add Chart.js time adapter -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <!-- Add Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Add Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #fff;
+        }
+
+        .dashboard {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: orange;
+            padding: 20px;
+            color: white;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .top-boxes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .box {
+            background-color: orange;
+            color: #000;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .box h4 {
+            margin: 0 0 10px;
+        }
+
+        .box h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: #fff;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .timeline-container {
+            margin-top: 30px;
+        }
+
+        .timeline-container h3 {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .timeline-chart {
+            width: 100%;
+            height: 400px;
+        }
+
+        #variantTitle {
+            margin: 10px 0;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .map-container {
+            width: 100%;
+            height: 500px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+        }
+
+        .map-title {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .box h2 {
+                font-size: 20px;
+            }
+        }
+
+        /* Map Controls Styling */
+        .map-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .map-controls input, .map-controls select {
+            margin: 5px 0;
+            padding: 5px;
+            width: 200px;
+        }
+
+        .route-controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .port-marker {
+            background-color: orange;
+            border-radius: 50%;
+            width: 12px;
+            height: 12px;
+            border: 2px solid white;
+        }
+
+        .port-marker.selected {
+            background-color: #ff0000;
+            width: 16px;
+            height: 16px;
+        }
+
+        .port-label {
+            background: none;
+            color: #222;
+            font-weight: bold;
+            border: none;
+            box-shadow: none;
+            font-size: 13px;
+        }
+
+        /* Daily Orders Section Styling */
+        .daily-orders-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .daily-orders-header {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .daily-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .daily-stat-box {
+            background: orange;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            color: #000;
+        }
+
+        .daily-stat-box h4 {
+            margin: 0 0 10px;
+            font-size: 16px;
+        }
+
+        .daily-stat-box h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .daily-orders-chart {
+            width: 100%;
+            height: 300px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard">
+        <div class="header">Chickpea Export Dashboard</div>
+
+        <!-- Top Metrics -->
+        <div class="top-boxes">
+            <div class="box">
+                <h4>Total Quantity Exported</h4>
+                <h2 id="totalQuantity">0 MTS</h2>
+            </div>
+            <div class="box">
+                <h4>Total FOB Value (Rs)</h4>
+                <h2 id="totalFOB">₹0</h2>
+            </div>
+            <div class="box">
+                <h4>Top Exporter</h4>
+                <h2 id="topExporter">N/A</h2>
+            </div>
+            <div class="box">
+                <h4>Top Destination Country</h4>
+                <h2 id="topCountry">N/A</h2>
+            </div>
+        </div>
+
+        <!-- Responsive Graphs -->
+        <div class="chart-grid">
+            <div class="chart-container">
+                <h3>Country-wise Share</h3><canvas id="countryPie"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Top Exporters (Qty & Value)</h3><canvas id="exporterBar"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Product Variant Share</h3>
+                <div id="variantTitle">All Variants</div>
+                <canvas id="variantPie"></canvas>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline-container">
+            <h3>Day-wise Rate & Quantity Timeline</h3>
+            <canvas id="timelineChart" class="timeline-chart"></canvas>
+        </div>
+
+        <!-- Date Detail Bar Chart -->
+        <div class="chart-container" style="margin-top: 30px;">
+            <h3 id="dateDetailTitle">Export Details for Selected Date</h3>
+            <canvas id="dateDetailBarChart"></canvas>
+        </div>
+
+        <!-- Drilldown Modal for Per-Day Details -->
+        <div id="drilldownModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+          <div style="background:#fff; padding:30px; border-radius:8px; max-width:800px; width:90vw; max-height:90vh; overflow:auto; position:relative;">
+            <button onclick="document.getElementById('drilldownModal').style.display='none'" style="position:absolute; top:10px; right:10px;">Close</button>
+            <h3 id="drilldownTitle"></h3>
+            <canvas id="drilldownBarChart" style="height:300px"></canvas>
+          </div>
+        </div>
+
+        <!-- Map Section -->
+        <div class="map-container">
+            <h3 class="map-title">Export Destinations Map</h3>
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize the map with min/max zoom
+        const map = L.map('map', {
+            minZoom: 2,
+            maxZoom: 10
+        }).setView([20.5937, 78.9629], 2);
+
+        // Use CartoDB Positron (grayscale) map tiles, no authentication required
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a> contributors &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Custom red pin icon
+        const redPinIcon = L.icon({
+            iconUrl: '{% static "export_dashboard/red-pin.png" %}',
+            iconSize: [18, 18],
+            iconAnchor: [16, 32],
+            popupAnchor: [0, -32]
+        });
+
+        // Store all ports data
+        let allPorts = [];
+        let portQuantities = {};
+
+        // Fetch ports dynamically from backend
+        fetch('/dashboard/ports_json/')
+            .then(res => res.json())
+            .then(ports => {
+                allPorts = ports.map(port => ({
+                    id: port.id,
+                    name: port.name,
+                    country: port.country,
+                    countryCode: port.country_code,
+                    portCode: port.port_code,
+                    lat: port.latitude,
+                    lng: port.longitude
+                }));
+                updateMap(allPorts);
+            });
+
+        // Add port markers with permanent labels
+        function addPortMarkers(ports) {
+            // Remove all existing markers
+            map.eachLayer(layer => {
+                if (layer instanceof L.Marker) {
+                    map.removeLayer(layer);
+                }
+            });
+            console.log('All Ports:', JSON.stringify(ports, null, 2)); // Debug log
+            ports.forEach(port => {
+                // Convert port code to uppercase for matching
+                const portCode = port.portCode.toUpperCase();
+                const quantity = portQuantities[portCode] || 0;
+                console.log(`Creating marker for: ${port.name}, Code: ${portCode}, Quantity: ${quantity}`); // Debug log
+                const marker = L.marker([port.lat, port.lng], { icon: redPinIcon })
+                    .bindPopup(`
+                        <div style=\"min-width:200px\">
+                            <strong>Port Name:</strong> ${port.name}<br>
+                            <strong>Country:</strong> ${port.country} (${port.countryCode})<br>
+                            <strong>Port Code:</strong> ${port.portCode}<br>
+                            <strong>Total Quantity:</strong> ${quantity.toLocaleString()} MTS<br>
+                        </div>
+                    `, { autoPan: true });
+                marker.bindTooltip(port.name, {permanent: true, direction: 'right', className: 'port-label'});
+                marker.addTo(map);
+            });
+        }
+
+        function updateMap(ports) {
+            addPortMarkers(ports);
+        }
+
+        let allData = [];
+        let selectedCountry = null;
+        let selectedVariant = null;
+
+        fetch('{% url "export_data_json" %}')
+            .then(res => res.json())
+            .then(data => {
+                allData = data;
+                // Calculate port quantities
+                portQuantities = {};
+                console.log('Raw Export Data:', JSON.stringify(data, null, 2)); // Debug log
+                
+                data.forEach(item => {
+                    if (item.destination_country) {
+                        // Clean up country name and convert to uppercase
+                        const country = item.destination_country.trim().toUpperCase();
+                        const quantity = parseFloat(item.quantity) || 0;
+                        
+                        // Find matching port for this country
+                        const matchingPort = allPorts.find(port => 
+                            port.country.toUpperCase() === country
+                        );
+                        
+                        if (matchingPort) {
+                            const portCode = matchingPort.portCode.toUpperCase();
+                            portQuantities[portCode] = (portQuantities[portCode] || 0) + quantity;
+                            console.log(`Matched ${country} to port ${portCode}, added quantity ${quantity}`); // Debug log
+                        }
+                    }
+                });
+                console.log('Calculated Port Quantities:', JSON.stringify(portQuantities, null, 2)); // Debug log
+                updateDashboard(allData);
+                updateMap(allPorts);
+            });
+
+        function updateDashboard(data) {
+            let totalQuantity = 0, totalFOB = 0;
+            const countryTotals = {}, exporterTotalsQty = {}, exporterTotalsFOB = {}, variantTotals = {}, dailyData = {};
+
+            data.forEach(item => {
+                const country = item.destination_country || 'Not Provided';
+                const exporter = item.exporter || 'Not Provided';
+                const variant = item.item || 'Not Provided';
+
+                totalQuantity += item.quantity || 0;
+                totalFOB += item.fob || 0;
+
+                countryTotals[country] = (countryTotals[country] || 0) + item.quantity;
+                exporterTotalsQty[exporter] = (exporterTotalsQty[exporter] || 0) + item.quantity;
+                exporterTotalsFOB[exporter] = (exporterTotalsFOB[exporter] || 0) + item.fob;
+                variantTotals[variant] = (variantTotals[variant] || 0) + item.quantity;
+
+                const date = new Date(item.shipping_bill_date).toISOString().split('T')[0];
+                if (!dailyData[date]) dailyData[date] = { totalQuantity: 0, totalRate: 0, count: 0 };
+                dailyData[date].totalQuantity += item.quantity;
+                dailyData[date].totalRate += item.rate_per_unit;
+                dailyData[date].count += 1;
+            });
+
+            document.getElementById("totalQuantity").innerText = totalQuantity.toFixed(2) + " MTS";
+            document.getElementById("totalFOB").innerText = "₹" + totalFOB.toLocaleString();
+            const topExporter = Object.entries(exporterTotalsQty).sort((a, b) => b[1] - a[1])[0];
+            const topCountry = Object.entries(countryTotals).sort((a, b) => b[1] - a[1])[0];
+            document.getElementById("topExporter").innerText = topExporter ? topExporter[0] : "N/A";
+            document.getElementById("topCountry").innerText = topCountry ? topCountry[0] : "N/A";
+
+            renderCountryPie(countryTotals);
+            renderExporterBar(exporterTotalsQty, exporterTotalsFOB);
+            renderVariantPie(variantTotals);
+            renderTimeline(dailyData);
+            renderDetailedBarChart(data);
+
+            document.getElementById("variantTitle").innerText = selectedVariant ? `Selected: ${selectedVariant}` : "All Variants";
+        }
+
+        function renderCountryPie(data) {
+            const ctx = document.getElementById('countryPie').getContext('2d');
+            if (window.countryPieChart) window.countryPieChart.destroy();
+            window.countryPieChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(data),
+                    datasets: [{ data: Object.values(data), backgroundColor: ['orange', '#c0c0c0', '#000', '#888', '#ffcc00'] }]
+                },
+                options: {
+                    responsive: true,
+                    onClick: (evt, item) => {
+                        if (item.length > 0) {
+                            const index = item[0].index;
+                            selectedCountry = Object.keys(data)[index];
+                            filterAndUpdate();
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderExporterBar(qtyData, fobData) {
+            const allExporters = Object.keys(qtyData);
+            const sortedExporters = allExporters.sort((a, b) => qtyData[b] - qtyData[a]).slice(0, 5);
+
+            const qtyValues = sortedExporters.map(l => qtyData[l]);
+            const fobValues = sortedExporters.map(l => fobData[l]);
+
+            while (sortedExporters.length < 5) {
+                sortedExporters.push('');
+                qtyValues.push(0);
+                fobValues.push(0);
+            }
+
+            const ctx = document.getElementById('exporterBar').getContext('2d');
+            if (window.exporterBarChart) window.exporterBarChart.destroy();
+            window.exporterBarChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['', '', '', '', ''],
+                    datasets: [
+                        { label: 'Quantity (MTS)', data: qtyValues, backgroundColor: 'orange', yAxisID: 'yQty' },
+                        { label: 'FOB Value (Rs)', data: fobValues, backgroundColor: '#666', yAxisID: 'yFOB' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                title: (tooltipItems) => {
+                                    const index = tooltipItems[0].dataIndex;
+                                    return sortedExporters[index] || 'N/A';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { ticks: { display: false }, grid: { display: false } },
+                        yQty: { type: 'linear', position: 'left', title: { display: true, text: 'Quantity (MTS)' }, beginAtZero: true },
+                        yFOB: { type: 'linear', position: 'right', title: { display: true, text: 'FOB (Rs)' }, grid: { drawOnChartArea: false }, beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        function renderVariantPie(data) {
+            const ctx = document.getElementById('variantPie').getContext('2d');
+            if (window.variantPieChart) window.variantPieChart.destroy();
+            window.variantPieChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(data),
+                    datasets: [{ data: Object.values(data), backgroundColor: ['#f68b1e', '#c0c0c0', '#000', '#888', '#ffcc00'] }]
+                },
+                options: {
+                    responsive: true,
+                    onClick: (evt, item) => {
+                        if (item.length > 0) {
+                            const index = item[0].index;
+                            selectedVariant = Object.keys(data)[index];
+                            filterAndUpdate();
+                        }
+                    }
+                }
+            });
+        }
+
+        let allTimelineData = [];
+
+        function renderTimeline(dailyData) {
+            const labels = Object.keys(dailyData).sort();
+            const qtyData = labels.map(date => dailyData[date].totalQuantity);
+            const rateData = labels.map(date => (dailyData[date].totalRate / dailyData[date].count).toFixed(2));
+
+            // Store all data for drilldown
+            allTimelineData = labels.map(date => ({
+                date: date,
+                totalQuantity: dailyData[date].totalQuantity,
+                totalRate: (dailyData[date].totalRate / dailyData[date].count).toFixed(2),
+                bills: dailyData[date].bills || []
+            }));
+
+            const ctx = document.getElementById('timelineChart').getContext('2d');
+            if (window.timelineChart && typeof window.timelineChart.destroy === 'function') {
+                window.timelineChart.destroy();
+            }
+
+            window.timelineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Quantity (MTS)', data: qtyData, borderColor: 'orange', yAxisID: 'y1', fill: false },
+                        { label: 'Rate (USD)', data: rateData, borderColor: '#000', yAxisID: 'y2', fill: false }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        y1: { type: 'linear', position: 'left', title: { display: true, text: 'Quantity' } },
+                        y2: { type: 'linear', position: 'right', title: { display: true, text: 'Rate' }, grid: { drawOnChartArea: false } }
+                    },
+                    onClick: function(evt, elements) {
+                        if (elements.length > 0) {
+                            const idx = elements[0].index;
+                            const date = labels[idx];
+                            showDrilldownDetails(date);
+                        }
+                    }
+                }
+            });
+        }
+
+        function showDrilldownDetails(date) {
+            // Filter data for selected date
+            const dayData = allData.filter(item => {
+                const itemDate = new Date(item.shipping_bill_date).toISOString().split('T')[0];
+                return itemDate === date;
+            });
+
+            // Sort by quantity
+            dayData.sort((a, b) => b.quantity - a.quantity);
+
+            // Prepare data for chart
+            const labels = dayData.map(item => 
+                `${item.exporter} | ${item.destination_port} | ${item.destination_country}`
+            );
+            const quantities = dayData.map(item => item.quantity);
+            const rates = dayData.map(item => item.rate_per_unit);
+
+            // Update modal title
+            document.getElementById('drilldownTitle').innerText = `Shipping Bills for ${date}`;
+
+            // Show modal
+            document.getElementById('drilldownModal').style.display = 'flex';
+
+            // Create chart
+            const ctx = document.getElementById('drilldownBarChart').getContext('2d');
+            if (window.drilldownChart) window.drilldownChart.destroy();
+
+            window.drilldownChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Quantity (MTS)',
+                            data: quantities,
+                            backgroundColor: 'orange',
+                            yAxisID: 'y1'
+                        },
+                        {
+                            label: 'Rate (USD)',
+                            data: rates,
+                            backgroundColor: '#666',
+                            yAxisID: 'y2'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const index = context.dataIndex;
+                                    const item = dayData[index];
+                                    let label = context.dataset.label + ': ' + context.parsed.y.toFixed(2);
+                                    if (context.datasetIndex === 0) {
+                                        label += `\nExporter: ${item.exporter}`;
+                                        label += `\nPort: ${item.destination_port}`;
+                                        label += `\nCountry: ${item.destination_country}`;
+                                        label += `\nRate: ${item.rate_per_unit} USD`;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y1: {
+                            type: 'linear',
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Quantity (MTS)'
+                            },
+                            beginAtZero: true
+                        },
+                        y2: {
+                            type: 'linear',
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Rate (USD)'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function filterAndUpdate() {
+            let filteredData = allData;
+            if (selectedCountry) filteredData = filteredData.filter(d => d.destination_country === selectedCountry);
+            if (selectedVariant) filteredData = filteredData.filter(d => d.item === selectedVariant);
+            updateDashboard(filteredData);
+            updateMap(allPorts);
+        }
+
+        function renderDetailedBarChart(data) {
+            // Group data by country
+            const countryData = {};
+            data.forEach(item => {
+                if (!countryData[item.destination_country]) {
+                    countryData[item.destination_country] = {
+                        totalQuantity: 0,
+                        totalRate: 0,
+                        ports: {},
+                        count: 0
+                    };
+                }
+                countryData[item.destination_country].totalQuantity += item.quantity;
+                countryData[item.destination_country].totalRate += item.rate_per_unit;
+                countryData[item.destination_country].count += 1;
+
+                if (!countryData[item.destination_country].ports[item.destination_port]) {
+                    countryData[item.destination_country].ports[item.destination_port] = {
+                        quantity: 0,
+                        rate: 0
+                    };
+                }
+                countryData[item.destination_country].ports[item.destination_port].quantity += item.quantity;
+                countryData[item.destination_country].ports[item.destination_port].rate += item.rate_per_unit;
+            });
+
+            // Prepare data for chart
+            const countries = Object.keys(countryData);
+            const quantities = countries.map(country => countryData[country].totalQuantity);
+            const avgRates = countries.map(country => 
+                countryData[country].totalRate / countryData[country].count
+            );
+
+            const ctx = document.getElementById('detailedBarChart').getContext('2d');
+            if (window.detailedBarChart) window.detailedBarChart.destroy();
+
+            window.detailedBarChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: countries,
+                    datasets: [
+                        {
+                            label: 'Total Quantity (MTS)',
+                            data: quantities,
+                            backgroundColor: 'orange',
+                            yAxisID: 'y1'
+                        },
+                        {
+                            label: 'Average Rate (USD)',
+                            data: avgRates,
+                            backgroundColor: '#666',
+                            yAxisID: 'y2'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                const country = context.label;
+                                const portData = countryData[country].ports;
+                                let portDetails = '\nPort Details:';
+                                for (const port in portData) {
+                                    portDetails += `\n${port}: ${portData[port].quantity.toFixed(2)} MTS`;
+                                }
+                                return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + portDetails;
+                            }
+                        }
+                    },
+                    scales: {
+                        y1: {
+                            type: 'linear',
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Quantity (MTS)'
+                            },
+                            beginAtZero: true
+                        },
+                        y2: {
+                            type: 'linear',
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Rate (USD)'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
